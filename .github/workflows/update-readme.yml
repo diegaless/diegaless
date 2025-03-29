@@ -1,0 +1,36 @@
+name: Update README SVG
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Todos los días a medianoche UTC
+  workflow_dispatch:     # Permite lanzarlo manualmente
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.10
+
+      - name: Install dependencies
+        run: pip install requests lxml python-dateutil
+
+      - name: Run script
+        env:
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          USER_NAME: ${{ secrets.USER_NAME }}
+        run: python today.py
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name 'GitHub Action'
+          git config --global user.email 'action@github.com'
+          git add .
+          git commit -m "Update README SVG" || echo "No changes"
+          git push
